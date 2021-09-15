@@ -6,11 +6,13 @@ import {
 	createRangeConstraint,
 	createStepConstraint,
 	findConstraint,
+	Formatter,
 	getBaseStep,
 	getSuitableDecimalDigits,
 	getSuitableDraggingScale,
 	InputBindingPlugin,
 	ParamsParsers,
+	ParamsParser,
 	parseNumber,
 	parseParams,
 	PointNdTextController,
@@ -28,6 +30,7 @@ interface IntervalInputParams extends BaseInputParams {
 	max?: number;
 	min?: number;
 	step?: number;
+	formatter?:Formatter<number>;
 }
 
 function createConstraint(params: IntervalInputParams): Constraint<Interval> {
@@ -63,6 +66,7 @@ export const IntervalInputPlugin: InputBindingPlugin<
 			max: p.optional.number,
 			min: p.optional.number,
 			step: p.optional.number,
+			formatter: <ParamsParser<Formatter<number> | undefined>> p.optional.function
 		});
 		return result
 			? {
@@ -91,7 +95,7 @@ export const IntervalInputPlugin: InputBindingPlugin<
 				baseStep: getBaseStep(c.edge),
 				constraint: c.edge,
 				draggingScale: getSuitableDraggingScale(rc, midValue),
-				formatter: createNumberFormatter(
+				formatter: args.params.formatter || createNumberFormatter(
 					getSuitableDecimalDigits(c.edge, midValue),
 				),
 				maxValue: rc.maxValue,
